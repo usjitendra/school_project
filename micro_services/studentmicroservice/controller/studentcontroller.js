@@ -2,11 +2,15 @@ const express=require('express');
 const routers=express.Router();
 const bodyparser=require('body-parser');
 const studentmodel=require('../../../model/studentmodel');
-
+const helper=require('../../../helper/authvailidation');
+const validation=require('../vailidation/studentValidation')
 
 routers.use(bodyparser.json());
 
-routers.route('/add').post((req,res)=>{
+
+
+
+routers.route('/add').post(async(req,res)=>{
        try{
          let data={
             name:req.body.name,
@@ -15,7 +19,8 @@ routers.route('/add').post((req,res)=>{
             mothername:req.body.mothername,
             mobilenumber:req.body.mobilenumber,
             address:req.body.address,
-            permanentaddress:req.body.permanentaddress
+            permanentaddress:req.body.permanentaddress,
+            email:req.body.email
          }
           studentmodel.create(data)
           .then((data)=>{
@@ -57,11 +62,10 @@ routers.route('/update/:id').put((req,res)=>{
        }
 })
 
-  routers.route("/find").get((req,res)=>{
+  routers.route("/find").get(helper.validate_token,async(req,res)=>{
        try {
             studentmodel.find()
             .then(alldeta=>{
-               console.log(alldeta);
                if(alldeta.length==0){
                     return res.status(500).send({massage:"student not found"});
                }
